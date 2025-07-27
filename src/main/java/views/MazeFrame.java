@@ -85,12 +85,17 @@ public class MazeFrame extends JFrame {
 
         algorithmSelector = new JComboBox<>(algorithms);
         solveButton = new JButton("Resolver");
+        pasoAPasoButton = new JButton("Paso a paso");
+
+
+
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(new JLabel("Algoritmo:"));
         bottomPanel.add(algorithmSelector);
         bottomPanel.add(solveButton);
         bottomPanel.add(pasoAPasoButton);
+
 
         add(bottomPanel, BorderLayout.SOUTH);
 
