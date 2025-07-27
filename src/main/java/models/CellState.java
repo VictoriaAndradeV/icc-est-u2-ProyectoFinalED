@@ -1,7 +1,7 @@
 package models;
 
 public enum CellState {
-    TRANSITABLE,
+    TRANSITABLE, //cuando la celda esta vacia
     WALL,
     PATH,
     START,
