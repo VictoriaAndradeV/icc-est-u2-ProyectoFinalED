@@ -1,4 +1,10 @@
 package models;
 
-public class CellState {
+public enum CellState {
+    TRANSITABLE,
+    WALL,
+    PATH,
+    START,
+    END,
+    VISITED
 }
