@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MazeFrame extends JFrame {
-    /*private MazePanel mazePanel;
+    private MazePanel mazePanel;
     private final AlgorithmResultDAO resultDAO;
     private JButton solveButton;
     private JComboBox algorithmSelector;
@@ -99,7 +99,7 @@ public class MazeFrame extends JFrame {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        /*solveButton.addActionListener(new ActionListener() {
+        solveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SolveResults results = resolverYObtenerResultados();
@@ -143,6 +143,6 @@ public class MazeFrame extends JFrame {
 
         JButton btnLimpiar = new JButton("Limpiar");
 
-    }*/
+    }
 
 }

@@ -6,6 +6,8 @@ import models.CellState;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 
 public class MazePanel extends JPanel {
@@ -35,8 +37,23 @@ public class MazePanel extends JPanel {
     }
 
     private void listeners() {
-        //falta el mouslistener/mousepressed para cambiar el color
-        //de las celdas clickeadas
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (controller == null) return;
+
+
+                int fila = e.getY() / CELL_SIZE;
+                int col = e.getX() / CELL_SIZE;
+
+
+                if (fila >= 0 && fila < rows && col >= 0 && col < cols) {
+                    controller.celdaClickeada(fila, col);
+                    repaint();
+                }
+            }
+        });
+
     }
 
     @Override
