@@ -104,4 +104,8 @@ public class MazePanel extends JPanel {
         }
         repaint();
     }
+
+    public void setController(MazeController controller) {
+        this.controller = controller;
+    }
 }
