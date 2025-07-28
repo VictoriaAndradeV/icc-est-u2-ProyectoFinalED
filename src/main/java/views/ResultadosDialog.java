@@ -3,6 +3,13 @@ package views;
 import dao.AlgorithmResultDAO;
 import dao.daoImpl.AlgorithmResultDAOFile;
 import models.AlgorithmResult;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,10 +24,14 @@ public class ResultadosDialog extends JDialog{
     private DefaultTableModel tableModel;
     private JButton btnLimpiar;
     private JButton btnGraficar;
+    private List<AlgorithmResult> resultados;
+
 
     public ResultadosDialog(JFrame parent) {
         super(parent, "Resultados", true);
         resultDAO = new AlgorithmResultDAOFile("results.csv");
+        this.resultados = resultDAO.findAll();
+
 
         setLayout(new BorderLayout());
         setSize(500, 300);
@@ -55,7 +66,8 @@ public class ResultadosDialog extends JDialog{
 
         btnGraficar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(ResultadosDialog.this, "Función de graficar aún no implementada.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                mostrarGrafica();
+
             }
         });
     }
@@ -70,4 +82,37 @@ public class ResultadosDialog extends JDialog{
             });
         }
     }
+
+    private void mostrarGrafica() {
+        //dataset
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (AlgorithmResult r : resultados) {
+            dataset.addValue(r.getTiempoEjecucion(), "Tiempo(ns)", r.getNombreAlgoritmo());
+        }
+
+        //grafico
+        JFreeChart chart = ChartFactory.createLineChart(
+                "Tiempos de Ejecución por Algoritmo",
+                "Algoritmo",
+                "Tiempo (ns)",
+                dataset
+        );
+
+        //detalles
+        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 20));
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.setBackgroundPaint(Color.DARK_GRAY);
+
+        LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+        renderer.setSeriesPaint(0, Color.pink);
+        plot.setRenderer(renderer);
+
+        //nuevo dialogo para grafico
+        JDialog graficaDialog = new JDialog(this, "Gráfica", true);
+        graficaDialog.setSize(800, 500);
+        graficaDialog.setLocationRelativeTo(this);
+        graficaDialog.setContentPane(new ChartPanel(chart));
+        graficaDialog.setVisible(true);
+    }
+
 }
