@@ -123,31 +123,8 @@ Finalmente, se devuelve un objeto SolveResults que guarda todo lo necesario para
   - `AlgorithmResultDAOFile.java`: Implementación que guarda y lee desde un archivo CSV.
 
 
-src/
-│
-├── controllers/
-│   └── MazeController.java
-│
-├── dao/
-│   └── AlgorithmResultDAO.java
-│
-├── dao/daoImpl/
-│   └── AlgorithmResultDAOFile.java
-│
-├── models/
-│   ├── Cell.java
-│   ├── SolveResults.java
-│   └── AlgorithmResult.java
-│
-├── solvers/
-│   ├── MazeSolverBFS.java
-│   ├── MazeSolverDFS.java
-│   └── ...
-│
-├── views/
-│   ├── MazeFrame.java
-│   ├── MazePanel.java
-│   └── ResultadosDialog.java
+<img width="844" height="546" alt="Screenshot 2025-07-28 235641" src="https://github.com/user-attachments/assets/43208eca-51a2-45c0-9c2b-c6979dae3507" />
+
 
 
 
