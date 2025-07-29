@@ -7,21 +7,41 @@ import solver.MazeSolver;
 import solver.solverImpl.*;
 import views.MazePanel;
 
+/**
+ * Controlador principal del laberinto.
+ * Gestiona eventos del usuario, ejecución de algoritmos y actualizaciones gráficas.
+ */
 public class MazeController {
     private final MazePanel mazePanel;
     private Cell[][] maze;
     private Cell startCell;
     private Cell endCell;
+    /**
+     * Modos de edición del laberinto:
+     * - START: colocar inicio
+     * - END: colocar destino
+     * - WALL: colocar o quitar paredes
+     */
     public enum Mode {
         START, END, WALL
     }
     private Mode currentMode = Mode.WALL;
-
+    /**
+     * Constructor que asocia el controlador al panel visual.
+     *
+     * @param mazePanel el panel del laberinto
+     */
     public MazeController(MazePanel mazePanel) {
         this.mazePanel = mazePanel;
         this.maze = mazePanel.getMaze();
     }
-
+    /**
+     * Lógica cuando el usuario hace clic sobre una celda.
+     * Cambia su estado según el modo seleccionado.
+     *
+     * @param row fila clickeada
+     * @param col columna clickeada
+     */
     public void celdaClickeada(int row, int col) {
         Cell cell = maze[row][col];
 
@@ -53,7 +73,11 @@ public class MazeController {
 
         mazePanel.repaint();
     }
-
+    /**
+     * Establece el modo actual (inicio, fin o pared)
+     *
+     * @param mode nuevo modo
+     */
     public void setMode(Mode mode) {
         this.currentMode = mode;
     }
@@ -70,6 +94,12 @@ public class MazeController {
         return maze;
     }
 
+    /**
+     * Asocia un nombre de algoritmo con su implementación real.
+     *
+     * @param nombre nombre del algoritmo seleccionado
+     * @return objeto MazeSolver correspondiente
+     */
     private MazeSolver obtenerAlgoritmo(String nombre) {
         switch (nombre) {
             case "Recursivo":
@@ -87,7 +117,13 @@ public class MazeController {
         }
     }
 
-
+    /**
+     * Ejecuta el algoritmo sobre el laberinto actual,
+     * pinta celdas visitadas y camino, y devuelve los resultados.
+     *
+     * @param algoritmoNombre nombre del algoritmo elegido
+     * @return objeto SolveResults con los datos de ejecución
+     */
     public SolveResults resolver(String algoritmoNombre) {
         if (startCell == null || endCell == null) {
             System.out.println("Inicio o fin no definidos.");
@@ -107,19 +143,6 @@ public class MazeController {
             return null;
         }
 
-        //pinta celdas
-        for (Cell c : results.getVisited()) {
-            if (c.getState() == CellState.TRANSITABLE) {
-                c.setState(CellState.VISITED);
-            }
-        }
-
-        //pinta camino
-        for (Cell c : results.getPath()) {
-            if (c != startCell && c != endCell) {
-                c.setState(CellState.PATH);
-            }
-        }
 
         mazePanel.repaint();
         return results;

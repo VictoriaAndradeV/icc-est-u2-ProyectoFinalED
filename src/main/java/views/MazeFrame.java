@@ -3,6 +3,7 @@ package views;
 import controllers.MazeController;
 import dao.AlgorithmResultDAO;
 import dao.daoImpl.AlgorithmResultDAOFile;
+import models.AlgorithmResult;
 import models.Cell;
 import models.CellState;
 import models.SolveResults;
@@ -15,11 +16,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
+/**
+ * Clase principal de la interfaz gráfica que representa el marco del laberinto
+ * Permite al usuario configurar un laberinto, seleccionar un algoritmo y visualizar
+ * los resultados de la resolución (normal o paso a paso).
+ *
+ * Usa MVC donde el MazePanel es la vista del laberinto,
+ * y MazeController maneja la lógica de interacción.
+ */
 public class MazeFrame extends JFrame {
     private MazePanel mazePanel;
     private MazeController mazeController;
     private final AlgorithmResultDAO resultDAO;
 
+    // Componentes de interfaz
     private final JTextField txtCols = new JTextField(4);
     private final JTextField txtRows = new JTextField(4);
     private final JButton btnGenerar = new JButton("Generar Laberinto");
@@ -27,7 +37,6 @@ public class MazeFrame extends JFrame {
     private final JButton btnEnd = new JButton("Fin");
     private final JButton btnWall = new JButton("Pared");
     private final JButton btnLimpiar = new JButton("Limpiar");
-    private final JButton btnModoRap = new JButton("Modo Rápido: OFF");
 
     private final JComboBox<String> algorithmSelector;
     private final JButton solveButton;
@@ -48,14 +57,54 @@ public class MazeFrame extends JFrame {
         COLOR_MAP.put(CellState.END, Color.RED);
         COLOR_MAP.put(CellState.VISITED, Color.ORANGE);
     }
-
+    /**
+     * Constructor principal que configura toda la interfaz de la aplicación.
+     */
     public MazeFrame() {
         super("Laberinto");
         resultDAO = new AlgorithmResultDAOFile("results.csv");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Panel superior de configuración
+        //menu de arriba
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu menuArchivo = new JMenu("Archivo");
+        JMenuItem itemNuevo = new JMenuItem("Nuevo laberinto");
+        JMenuItem itemResultados = new JMenuItem("Ver resultados");
+
+        menuArchivo.add(itemNuevo);
+        menuArchivo.add(itemResultados);
+        menuBar.add(menuArchivo);
+
+        setJMenuBar(menuBar);
+
+        itemNuevo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int opcion = JOptionPane.showConfirmDialog(
+                        MazeFrame.this,
+                        "¿Deseas limpiar y crear un nuevo laberinto?",
+                        "Nuevo Laberinto",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (opcion == JOptionPane.YES_OPTION) {
+                    mazePanel.limpiar();
+                    txtCols.setText("");
+                    txtRows.setText("");
+                }
+            }
+        });
+
+        itemResultados.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ResultadosDialog dialog = new ResultadosDialog(MazeFrame.this);
+                dialog.setVisible(true);
+            }
+        });
+
+        // Panel superior de configuración de dimensiones y herramientas
         JPanel topPanel = new JPanel();
         topPanel.setBackground(Color.CYAN);
         topPanel.add(new JLabel("Ancho:"));
@@ -67,7 +116,6 @@ public class MazeFrame extends JFrame {
         topPanel.add(btnEnd);
         topPanel.add(btnWall);  // Pared
         topPanel.add(btnLimpiar);
-        topPanel.add(btnModoRap);
         add(topPanel, BorderLayout.NORTH);
 
         btnStart.addActionListener(new ActionListener() {
@@ -109,24 +157,40 @@ public class MazeFrame extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
 
         btnGenerar.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 try {
                     int cols = Integer.parseInt(txtCols.getText());
                     int rows = Integer.parseInt(txtRows.getText());
 
-                    remove(mazePanel); // remover el anterior
+                    if (cols < 5 || cols > 30 || rows < 5 || rows > 30) {
+                        JOptionPane.showMessageDialog(MazeFrame.this,
+                                "Las dimensiones deben estar entre 5 y 30.",
+                                "Tamaño inválido", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
 
-                    mazePanel = new MazePanel(rows, cols); // nuevo laberinto
-                    mazeController = new MazeController(mazePanel); // nuevo controlador
+                    // Reiniciar paso a paso si se genera nuevo laberinto
+                    resolvioPasoAPaso = false;
+                    pasoIndex = 0;
+                    pasoAPasoButton.setEnabled(true);
+
+                    remove(mazePanel); // Remover el laberinto anterior
+                    mazePanel = new MazePanel(rows, cols); // Nuevo laberinto
+                    mazeController = new MazeController(mazePanel); // Nuevo controlador
                     mazePanel.setController(mazeController);
 
                     add(mazePanel, BorderLayout.CENTER);
-                    revalidate(); repaint();
+                    revalidate();
+                    repaint();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(MazeFrame.this,
-                            "Ancho y Alto deben ser enteros positivos.",
+                            "Ancho y alto deben ser números enteros válidos.",
                             "Error de entrada", JOptionPane.ERROR_MESSAGE);
                 }
+                pasoAPasoButton.setText("Paso a paso");
+                pasoAPasoButton.setEnabled(true);
+                solveButton.setEnabled(true);
             }
         });
 
@@ -137,8 +201,16 @@ public class MazeFrame extends JFrame {
                 SolveResults results = resolverYObtenerResultados();
                 if (results != null) {
                     animarVisitadas(results.getVisited(), results.getPath());
+
+                    String algoritmo = (String) algorithmSelector.getSelectedItem();
+                    long tiempo = results.getTime();
+                    int longitud = results.getPath().size();
+
+                    AlgorithmResult result = new AlgorithmResult(algoritmo, tiempo, longitud);
+                    resultDAO.save(result);
+
                     JOptionPane.showMessageDialog(MazeFrame.this,
-                            "Camino encontrado. Longitud: " + results.getPath().size());
+                            "Camino encontrado. Longitud: " + longitud);
                 } else {
                     JOptionPane.showMessageDialog(MazeFrame.this,
                             "No se pudo encontrar un camino.");
@@ -149,67 +221,93 @@ public class MazeFrame extends JFrame {
         pasoAPasoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //primer clic, se calcula y almacenan los pasos
                 if (!resolvioPasoAPaso) {
-                    SolveResults results = resolverYObtenerResultados();
-                    if (results != null) {
-                        pasoCeldasVisitadas = results.getVisited();
-                        pasoCamino = results.getPath();
-                        pasoIndex = 0;
-                        resolvioPasoAPaso = true;
+                    if (mazeController.getStartCell() == null || mazeController.getEndCell() == null) {
+                        JOptionPane.showMessageDialog(MazeFrame.this,
+                                "Debes marcar una celda de inicio y una de fin antes de resolver.",
+                                "Faltan datos", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
-                    return;
+
+                    // Resuelve pero no pinta, solo almacena
+                    SolveResults results = mazeController.resolver((String) algorithmSelector.getSelectedItem());
+
+                    if (results == null || results.getPath().isEmpty()) {
+                        JOptionPane.showMessageDialog(MazeFrame.this,
+                                "No se pudo encontrar un camino.");
+                        return;
+                    }
+
+                    pasoCeldasVisitadas = results.getVisited();
+                    pasoCamino = results.getPath();
+                    pasoIndex = 0;
+                    resolvioPasoAPaso = true;
+                    pasoAPasoButton.setText("Siguiente paso");
+                    solveButton.setEnabled(false); // desactiva resolver
+
+                    // Guardamos el resultado
+                    String algoritmo = (String) algorithmSelector.getSelectedItem();
+                    long tiempo = results.getTime();
+                    int longitud = results.getPath().size();
+                    AlgorithmResult result = new AlgorithmResult(algoritmo, tiempo, longitud);
+                    resultDAO.save(result);
                 }
 
-                //se avanza paso a paso
-                if (pasoCeldasVisitadas == null || pasoCamino == null) {
-                    return;
-                }
-
-                //pinta las celdas visitadas en orden
+                // Pinta paso a paso
                 if (pasoIndex < pasoCeldasVisitadas.size()) {
-                    Cell cell = pasoCeldasVisitadas.get(pasoIndex++);
-                    if (cell.getState() == CellState.TRANSITABLE) {
-                        paintCell(cell, CellState.VISITED);
+                    Cell c = pasoCeldasVisitadas.get(pasoIndex);
+                    if (c.getState() == CellState.TRANSITABLE) {
+                        paintCell(c, CellState.VISITED);
                     }
-                    return;
+                } else {
+                    int i = pasoIndex - pasoCeldasVisitadas.size();
+                    if (i < pasoCamino.size()) {
+                        Cell c = pasoCamino.get(i);
+                        if (c != mazeController.getStartCell() && c != mazeController.getEndCell()) {
+                            paintCell(c, CellState.PATH);
+                        }
+                    }
                 }
+                pasoIndex++;
 
-                //se traza la ruta final
-                int offset = pasoIndex - pasoCeldasVisitadas.size();
-                if (offset < pasoCamino.size()) {
-                    Cell cell = pasoCamino.get(offset);
-                    if (cell != mazeController.getStartCell() && cell != mazeController.getEndCell()) {
-                        paintCell(cell, CellState.PATH);
-                    }
-                    pasoIndex++;
-                    return;
+                int total = pasoCeldasVisitadas.size() + pasoCamino.size();
+                if (pasoIndex >= total) {
+                    JOptionPane.showMessageDialog(MazeFrame.this,
+                            "Recorrido completado.");
+                    pasoAPasoButton.setEnabled(false);
+                    pasoAPasoButton.setText("Paso a paso");
+                    solveButton.setEnabled(true);
                 }
-                //si ya se ha mostrado completo, se deshabilita
-                JOptionPane.showMessageDialog(MazeFrame.this, "Recorrido completado.");
-                resolvioPasoAPaso = false;
-                pasoAPasoButton.setEnabled(false);
             }
         });
+
 
         btnLimpiar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mazePanel.limpiar();
+
                 resolvioPasoAPaso = false;
                 pasoIndex = 0;
+                pasoAPasoButton.setText("Paso a paso");
+                pasoAPasoButton.setEnabled(true);
+                solveButton.setEnabled(true);
             }
         });
-        setSize(1000, 700);
+        setSize(850, 800);
         setLocationRelativeTo(null);
         setVisible(true);
     }
-
+    /**
+     * Ejecuta el algoritmo seleccionado y obtiene los resultados.
+     */
     private SolveResults resolverYObtenerResultados() {
         String algoritmo = (String) algorithmSelector.getSelectedItem();
         return mazeController.resolver(algoritmo);
     }
-
+    /**
+     * Pinta todas las celdas visitadas y la ruta encontrada.
+     */
     private void animarVisitadas(List<Cell> visitadas, List<Cell> camino) {
         for (Cell c : visitadas) {
             if (c.getState() == CellState.TRANSITABLE) {
@@ -223,7 +321,9 @@ public class MazeFrame extends JFrame {
         }
         mazePanel.repaint();
     }
-
+    /**
+     * Pinta una celda individualmente
+     */
     private void paintCell(Cell c, CellState state) {
         c.setState(state);
         mazePanel.repaint();

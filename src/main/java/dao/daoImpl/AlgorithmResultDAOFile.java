@@ -23,10 +23,18 @@ public class AlgorithmResultDAOFile implements AlgorithmResultDAO {
             throw new UncheckedIOException("No se pudo crear el archivo de resultados", e);
         }
     }
-
+    /**
+     * Guarda un resultado de ejecución en el archivo CSV.
+     * Cada resultado se añade al final del archivo.
+     *
+     * @param result el resultado del algoritmo a guardar (nombre, tiempo, longitud)
+     */
     @Override
     public void save(AlgorithmResult result) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            System.out.println("Guardando: " + result);
+            System.out.println("Archivo en: " + file.getAbsolutePath());
+
             // result.toString() devuelve "nombreAlgoritmo,tiempoEjecucion,longitudRuta"
             bw.write(result.toString());
             bw.newLine();
@@ -34,7 +42,11 @@ public class AlgorithmResultDAOFile implements AlgorithmResultDAO {
             throw new UncheckedIOException("Error al guardar resultado", e);
         }
     }
-
+    /**
+     * Lee todos los resultados guardados en el archivo CSV.
+     *
+     * @return lista de objetos AlgorithmResult cargados desde el archivo
+     */
     @Override
     public List<AlgorithmResult> findAll() {
         List<AlgorithmResult> lista = new ArrayList<>();

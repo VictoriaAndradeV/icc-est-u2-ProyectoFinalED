@@ -74,6 +74,9 @@ public class ResultadosDialog extends JDialog{
         });
     }
 
+    /**
+     * Carga los resultados desde el DAO y los muestra en la tabla
+     */
     private void cargarResultados() {
         List<AlgorithmResult> lista = resultDAO.findAll();
         tableModel.setRowCount(0);
@@ -84,11 +87,14 @@ public class ResultadosDialog extends JDialog{
             });
         }
     }
-
+    /**
+     * Muestra un gráfico de líneas con los tiempos de ejecución por algoritmo
+     */
     private void mostrarGrafica() {
         //dataset
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        for (AlgorithmResult r : resultados) {
+        List<AlgorithmResult> actualizados = resultDAO.findAll();
+        for (AlgorithmResult r : actualizados) {
             dataset.addValue(r.getTiempoEjecucion(), "Tiempo(ns)", r.getNombreAlgoritmo());
         }
 

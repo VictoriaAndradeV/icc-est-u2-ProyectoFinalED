@@ -65,7 +65,12 @@ public class MazePanel extends JPanel {
             }
         });
     }
-
+    /**
+     * Método sobrescrito que se encarga de pintar el laberinto en el panel.
+     * Cada celda se dibuja con su color correspondiente según su estado.
+     *
+     * @param g el contexto gráfico sobre el que se dibuja
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -114,7 +119,10 @@ public class MazePanel extends JPanel {
             repaint();
         }
     }
-
+    /**
+     * Limpia el laberinto, marcando todas las celdas como transitables.
+     * Luego, repinta el panel para reflejar los cambios visualmente.
+     */
     public void limpiar() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {

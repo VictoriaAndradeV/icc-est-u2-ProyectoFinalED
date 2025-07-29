@@ -39,24 +39,12 @@ public class SolveResults {
         return visited;
     }
 
-    public void setVisited(List<Cell> visited) {
-        this.visited = visited;
-    }
-
     public List<Cell> getPath() {
         return path;
     }
 
-    public void setPath(List<Cell> path) {
-        this.path = path;
-    }
-
     public long getTime() {
         return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
     }
 
     @Override
