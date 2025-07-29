@@ -13,21 +13,26 @@ public class SolveResults {
     private List<Cell> path;
     private long time;
 
-    public SolveResults(List<Cell> visited, List<Cell> path, long time) {
+    /**
+     * listas vacías y tiempo en 0
+     */
+    public SolveResults() {
         this.visited = new ArrayList<>();
         this.path = new ArrayList<>();
         this.time = 0;
     }
 
     /**
-     * Constructor que inicia las listas de celdas visitadas
-     * y su ruta
-     * @param visited Lista de celdas que fueron visitadas por el algoritmo
-     * @param path Ruta final desde el inicio hasta la ultima celda
+     * Construye resultados especificando las celdas visitadas, la ruta final y el tiempo de ejecucion
+     *
+     * @param visited lista de celdas visitadas por el algoritmo
+     * @param path lista de celdas de la ruta desde el inicio hasta el destino
+     * @param time tiempo de ejecución en nanosegundos
      */
-    public SolveResults(List<Cell> visited, List<Cell> path) {
-        this.visited = visited;
-        this.path = path;
+    public SolveResults(List<Cell> visited, List<Cell> path, long time) {
+        this.visited = new ArrayList<>(visited);
+        this.path = new ArrayList<>(path);
+        this.time = time;
     }
 
     public List<Cell> getVisited() {

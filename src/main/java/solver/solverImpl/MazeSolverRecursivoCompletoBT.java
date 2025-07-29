@@ -21,13 +21,17 @@ public class MazeSolverRecursivoCompletoBT implements MazeSolver {
         visited.clear();
         path.clear();
 
+        long inicialTime = System.nanoTime();
         findPath(maze, start.getRow(), start.getCol(), end);
+        long finalTime = System.nanoTime();
 
-        return new SolveResults(new ArrayList<>(visited), new ArrayList<>(path));
+        // Invertir ruta de fin→inicio a inicio→fin
+        List<Cell> finalPath = new ArrayList<>(path);
+        Collections.reverse(finalPath);
+        return new SolveResults(new ArrayList<>(visited), finalPath, finalTime - inicialTime);
     }
 
     private boolean findPath(Cell[][] maze, int row, int col, Cell end) {
-
         if (!end.isValid(maze, row, col)) {
             return false;
         }
@@ -45,7 +49,6 @@ public class MazeSolverRecursivoCompletoBT implements MazeSolver {
             path.add(cell);
             return true;
         }
-
 
         if (findPath(maze, row + 1, col, end) ||  //Abajo
                 findPath(maze, row, col + 1, end) ||  //Derecha

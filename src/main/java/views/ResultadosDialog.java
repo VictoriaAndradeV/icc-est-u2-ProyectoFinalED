@@ -7,7 +7,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
@@ -26,12 +25,15 @@ public class ResultadosDialog extends JDialog{
     private JButton btnGraficar;
     private List<AlgorithmResult> resultados;
 
-
+    /**
+     * Carga los resultados desde el DAO y muestra en la tabla
+     *
+     * @param parent ventana padre para posicionamiento y modalidad
+     */
     public ResultadosDialog(JFrame parent) {
         super(parent, "Resultados", true);
         resultDAO = new AlgorithmResultDAOFile("results.csv");
         this.resultados = resultDAO.findAll();
-
 
         setLayout(new BorderLayout());
         setSize(500, 300);
