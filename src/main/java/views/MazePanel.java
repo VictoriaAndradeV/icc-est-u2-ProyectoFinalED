@@ -9,25 +9,33 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-
+/**
+ * Panel que representa el laberinto como una matriz de celdas
+ * Establece un estado de inicio, final y los muros por loc clics
+ */
 public class MazePanel extends JPanel {
-
     private final int rows;
     private final int cols;
     private final Cell[][] maze;
     private MazeController controller;
 
-    private static final int CELL_SIZE = 30;
-
+    /**
+     * Construye un panel de dimensiones especificadas y dibuja todas las celdas en estado
+     * TRANSITABLE
+     * @param rows
+     * @param cols
+     */
     public MazePanel(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         this.maze = new Cell[rows][cols];
-        setPreferredSize(new Dimension(cols * CELL_SIZE, rows * CELL_SIZE));
         inicializarMaze();
         listeners();
     }
 
+    /**
+     * Inicializa cada posición de la matriz como celda transitable
+     */
     private void inicializarMaze() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -35,17 +43,20 @@ public class MazePanel extends JPanel {
             }
         }
     }
-
+    /**
+     * Registra listener de ratón para cuando se haga clic
+     */
     private void listeners() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (controller == null) return;
 
+                int cellWidth = getWidth() / cols;
+                int cellHeight = getHeight() / rows;
 
-                int fila = e.getY() / CELL_SIZE;
-                int col = e.getX() / CELL_SIZE;
-
+                int fila = e.getY() / cellHeight;
+                int col = e.getX() / cellWidth;
 
                 if (fila >= 0 && fila < rows && col >= 0 && col < cols) {
                     controller.celdaClickeada(fila, col);
@@ -53,25 +64,32 @@ public class MazePanel extends JPanel {
                 }
             }
         });
-
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        if (maze == null || rows == 0 || cols == 0) return;
+
+        int cellWidth = getWidth() / cols;
+        int cellHeight = getHeight() / rows;
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 Cell cell = maze[i][j];
                 g.setColor(color(cell.getState()));
-                g.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                g.fillRect(j * cellWidth, i * cellHeight, cellWidth, cellHeight);
 
                 g.setColor(Color.GRAY); // Líneas de rejilla
-                g.drawRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                g.drawRect(j * cellWidth, i * cellHeight, cellWidth, cellHeight);
             }
         }
     }
 
+    /**
+     * cada estado de celda tiene un color
+     */
     private Color color(CellState state) {
         switch (state) {
             case START: return Color.GREEN;
@@ -83,8 +101,9 @@ public class MazePanel extends JPanel {
             default: return Color.WHITE;
         }
     }
-
-
+    /**
+     * Retorna la matriz interna de celdas para uso del controlador.
+     */
     public Cell[][] getMaze() {
         return maze;
     }
@@ -104,7 +123,9 @@ public class MazePanel extends JPanel {
         }
         repaint();
     }
-
+    /**
+     * Controlador encargado de la logica de los eventos
+     */
     public void setController(MazeController controller) {
         this.controller = controller;
     }

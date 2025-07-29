@@ -3,8 +3,8 @@ package models;
 import java.util.Objects;
 
 /**
- * models/cell representa una celda dentro del laberinto
- * cada celda tiene una posicion, un estado (transitable o si tiene un muro)
+ * Representa una celda del laberinto
+ * cada celda tiene una posicion(fila y columna), un estado (transitable, si es un muro, inicio, fin, etc)
  * bandera que indica si ha sido visitada
  */
 public class Cell {
@@ -13,7 +13,8 @@ public class Cell {
     private CellState state;
     private boolean visited;
 
-    /**
+    /**Crea una celda en la posicion indicada y con el estado especificado
+     *
      * @param row posicion fila de la celda
      * @param col columna en donde se ubica la celda
      * @param state estado de la celda
@@ -26,22 +27,27 @@ public class Cell {
     }
 
     //Getters y setters
+
+    /**
+     * Obtiene el indice de la fila
+     * @return valor de la fila
+     */
     public int getRow() {
         return row;
     }
 
-    public void setRow(int row) {
-        this.row = row;
-    }
-
+    /**
+     * Obtiene el indice de la columna de la celda
+     * @return valor de la columna
+     */
     public int getCol() {
         return col;
     }
 
-    public void setCol(int col) {
-        this.col = col;
-    }
-
+    /**
+     * Nos devuelve el estado aactual de la celda
+     * @return (Cell state)
+     */
     public CellState getState() {
         return state;
     }
@@ -50,14 +56,15 @@ public class Cell {
         this.state = state;
     }
 
-    public boolean isVisited() {
-        return visited;
-    }
-
-    public void setVisited(boolean visited) {
-        this.visited = visited;
-    }
-
+    /**
+     * Nos ayuda a validar si la posicion indicada esta dentro del laberinto
+     * y si la celda es un muro o no
+     *
+     * @param maze arreglo de las celdas que representa el laberinto
+     * @param row
+     * @param col
+     * @return {@code true} si la celda existe y es transitable; {@code false} en otro caso
+     */
     public boolean isValid(Cell[][] maze, int row, int col) {
         int rows = maze.length;
         int cols = maze[0].length;
@@ -66,14 +73,13 @@ public class Cell {
         if (row < 0 || row >= rows || col < 0 || col >= cols) {
             return false;
         }
-
         // Verifica si es transitable (no es muro)
         return maze[row][col].rutaPermitida();
     }
 
     /**
      * Si devuelve el valor TRUE significa que la celda puede
-     * ser recorrida por el algoritmo
+     * ser recorrida por el algoritmo, es decir que la celda no representa un muro
      */
     public boolean rutaPermitida(){
         return state != CellState.WALL;
@@ -81,6 +87,8 @@ public class Cell {
 
     /**
      *Compara dos celdas por su posicion
+     * Dos celdas son iguales si tienen la misma
+     * fila y columna
      */
     @Override
     public boolean equals(Object o) {

@@ -17,8 +17,6 @@ public class MazeController {
     }
     private Mode currentMode = Mode.WALL;
 
-
-
     public MazeController(MazePanel mazePanel) {
         this.mazePanel = mazePanel;
         this.maze = mazePanel.getMaze();

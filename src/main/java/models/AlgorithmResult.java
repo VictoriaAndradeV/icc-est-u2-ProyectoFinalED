@@ -1,8 +1,9 @@
 package models;
 
-
 /**
  * Representa el resultado de ejecucion de cada algoritmo en el laberinto
+ * Contiene: nombre, tiempo de ejecucion en NANOSEGUNDOS
+ * longitud(numero de celdas) y la ruta encontrada
  */
 public class AlgorithmResult {
     private String nombreAlgoritmo;
@@ -13,10 +14,10 @@ public class AlgorithmResult {
     }
 
     /**
-     * Constructor principal
+     * Constructor principal, obtiene nuevo resultado de ejecucion
      * @param nombreAlgoritmo Nombre del algoritmo
      * @param tiempoEjecucion Tiempo de ejecución en nanosegundos
-     * @param longitudRuta Longitud de la ruta encontrada
+     * @param longitudRuta Longitud de la ruta encontrada, num de celdas
      */
     public AlgorithmResult(String nombreAlgoritmo, long tiempoEjecucion, int longitudRuta) {
         this.nombreAlgoritmo = nombreAlgoritmo;
@@ -25,28 +26,26 @@ public class AlgorithmResult {
     }
 
     //getters y setters
+
+    /**
+     * @return nombre del algoritmo
+     */
     public String getNombreAlgoritmo() {
         return nombreAlgoritmo;
     }
 
-    public void setNombreAlgoritmo(String nombreAlgoritmo) {
-        this.nombreAlgoritmo = nombreAlgoritmo;
-    }
-
+    /**
+     * @return tiempo de ejecu
+     */
     public long getTiempoEjecucion() {
         return tiempoEjecucion;
     }
 
-    public void setTiempoEjecucion(long tiempoEjecucion) {
-        this.tiempoEjecucion = tiempoEjecucion;
-    }
-
+    /**
+     * @return longitud de la ruta
+     */
     public int getLongitudRuta() {
         return longitudRuta;
-    }
-
-    public void setLongitudRuta(int longitudRuta) {
-        this.longitudRuta = longitudRuta;
     }
 
     @Override

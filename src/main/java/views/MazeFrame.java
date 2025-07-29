@@ -20,10 +20,18 @@ public class MazeFrame extends JFrame {
     private MazeController mazeController;
     private final AlgorithmResultDAO resultDAO;
 
-    private JButton solveButton;
-    private JComboBox algorithmSelector;
-    private JButton pasoAPasoButton;
-    private JButton btnLimpiar;
+    private final JTextField txtCols = new JTextField(4);
+    private final JTextField txtRows = new JTextField(4);
+    private final JButton btnGenerar = new JButton("Generar Laberinto");
+    private final JButton btnStart = new JButton("Inicio");
+    private final JButton btnEnd = new JButton("Fin");
+    private final JButton btnWall = new JButton("Pared");
+    private final JButton btnLimpiar = new JButton("Limpiar");
+    private final JButton btnModoRap = new JButton("Modo Rápido: OFF");
+
+    private final JComboBox<String> algorithmSelector;
+    private final JButton solveButton;
+    private final JButton pasoAPasoButton = new JButton("Paso a paso");
 
     private List<Cell> pasoCeldasVisitadas;
     private List<Cell> pasoCamino;
@@ -38,26 +46,29 @@ public class MazeFrame extends JFrame {
         COLOR_MAP.put(CellState.PATH, Color.BLUE);
         COLOR_MAP.put(CellState.START, Color.GREEN);
         COLOR_MAP.put(CellState.END, Color.RED);
+        COLOR_MAP.put(CellState.VISITED, Color.ORANGE);
     }
 
-    public MazeFrame(int rows, int columns) {
-        resultDAO = new AlgorithmResultDAOFile(filePath: "results.csv");
-
-        setTitle("Maze Creator");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+    public MazeFrame() {
+        super("Laberinto");
+        resultDAO = new AlgorithmResultDAOFile("results.csv");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        mazePanel = new MazePanel(rows, columns);
-        mazeController = new MazeController(mazePanel);
-        mazePanel.setController(mazeController);
-        add(mazePanel, BorderLayout.CENTER);
-
-        //toppanel----------
+        // Panel superior de configuración
         JPanel topPanel = new JPanel();
-        JButton btnStart = new JButton("Start");
-        JButton btnEnd = new JButton("End");
-        JButton btnWall = new JButton("Wall");
+        topPanel.setBackground(Color.CYAN);
+        topPanel.add(new JLabel("Ancho:"));
+        topPanel.add(txtCols);
+        topPanel.add(new JLabel("Alto:"));
+        topPanel.add(txtRows);
+        topPanel.add(btnGenerar);
+        topPanel.add(btnStart);
+        topPanel.add(btnEnd);
+        topPanel.add(btnWall);  // Pared
+        topPanel.add(btnLimpiar);
+        topPanel.add(btnModoRap);
+        add(topPanel, BorderLayout.NORTH);
 
         btnStart.addActionListener(new ActionListener() {
             @Override
@@ -80,37 +91,46 @@ public class MazeFrame extends JFrame {
             }
         });
 
-        topPanel.add(btnStart);
-        topPanel.add(btnEnd);
-        topPanel.add(btnWall);
-        add(topPanel, BorderLayout.NORTH);
+        // Panel central vacío hasta generar
+        mazePanel = new MazePanel(0, 0);
+        mazeController = new MazeController(mazePanel);
+        mazePanel.setController(mazeController);
+        add(mazePanel, BorderLayout.CENTER);
 
-        //bottonmpanel-------
+        //Panel inferior con selector y botones de ejecución
         JPanel bottomPanel = new JPanel();
-        String[] algorithms = {
-                "Recursivo", "Recursivo Completo", "Recursivo Completo BT",
-                "BFS", "DFS",
-
-        };
+        String[] algorithms = {"Recursivo","Recursivo Completo","Recursivo Completo BT","BFS","DFS"};
         algorithmSelector = new JComboBox<>(algorithms);
-
         solveButton = new JButton("Resolver");
-        pasoAPasoButton = new JButton("Paso a paso");
-        JButton btnLimpiar = new JButton("Limpiar");
-
-
-
-
-
         bottomPanel.add(new JLabel("Algoritmo:"));
         bottomPanel.add(algorithmSelector);
         bottomPanel.add(solveButton);
         bottomPanel.add(pasoAPasoButton);
-        bottomPanel.add(btnLimpiar);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        btnGenerar.addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent e) {
+                try {
+                    int cols = Integer.parseInt(txtCols.getText());
+                    int rows = Integer.parseInt(txtRows.getText());
 
-        //listeners
+                    remove(mazePanel); // remover el anterior
+
+                    mazePanel = new MazePanel(rows, cols); // nuevo laberinto
+                    mazeController = new MazeController(mazePanel); // nuevo controlador
+                    mazePanel.setController(mazeController);
+
+                    add(mazePanel, BorderLayout.CENTER);
+                    revalidate(); repaint();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(MazeFrame.this,
+                            "Ancho y Alto deben ser enteros positivos.",
+                            "Error de entrada", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        //cuando se hace clic en resolver
         solveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -129,6 +149,7 @@ public class MazeFrame extends JFrame {
         pasoAPasoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //primer clic, se calcula y almacenan los pasos
                 if (!resolvioPasoAPaso) {
                     SolveResults results = resolverYObtenerResultados();
                     if (results != null) {
@@ -137,26 +158,37 @@ public class MazeFrame extends JFrame {
                         pasoIndex = 0;
                         resolvioPasoAPaso = true;
                     }
-                } else {
-                    //clic siguiente para pintar paso a paso
-                    if (pasoIndex < pasoCeldasVisitadas.size()) {
-                        Cell cell = pasoCeldasVisitadas.get(pasoIndex);
-                        if (cell.getState() == CellState.TRANSITABLE) {
-                            paintCell(cell, CellState.VISITED);
-                        }
-                        pasoIndex++;
-                    } else if (pasoIndex - pasoCeldasVisitadas.size() < pasoCamino.size()) {
-                        int caminoIdx = pasoIndex - pasoCeldasVisitadas.size();
-                        Cell cell = pasoCamino.get(caminoIdx);
-                        if (cell.getState() != CellState.START && cell.getState() != CellState.END) {
-                            paintCell(cell, CellState.PATH);
-                        }
-                        pasoIndex++;
-                    } else {
-                        JOptionPane.showMessageDialog(MazeFrame.this, "Ya se ha mostrado todo el recorrido.");
-                        resolvioPasoAPaso = false;
-                    }
+                    return;
                 }
+
+                //se avanza paso a paso
+                if (pasoCeldasVisitadas == null || pasoCamino == null) {
+                    return;
+                }
+
+                //pinta las celdas visitadas en orden
+                if (pasoIndex < pasoCeldasVisitadas.size()) {
+                    Cell cell = pasoCeldasVisitadas.get(pasoIndex++);
+                    if (cell.getState() == CellState.TRANSITABLE) {
+                        paintCell(cell, CellState.VISITED);
+                    }
+                    return;
+                }
+
+                //se traza la ruta final
+                int offset = pasoIndex - pasoCeldasVisitadas.size();
+                if (offset < pasoCamino.size()) {
+                    Cell cell = pasoCamino.get(offset);
+                    if (cell != mazeController.getStartCell() && cell != mazeController.getEndCell()) {
+                        paintCell(cell, CellState.PATH);
+                    }
+                    pasoIndex++;
+                    return;
+                }
+                //si ya se ha mostrado completo, se deshabilita
+                JOptionPane.showMessageDialog(MazeFrame.this, "Recorrido completado.");
+                resolvioPasoAPaso = false;
+                pasoAPasoButton.setEnabled(false);
             }
         });
 
@@ -168,7 +200,7 @@ public class MazeFrame extends JFrame {
                 pasoIndex = 0;
             }
         });
-
+        setSize(1000, 700);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -196,5 +228,4 @@ public class MazeFrame extends JFrame {
         c.setState(state);
         mazePanel.repaint();
     }
-
 }

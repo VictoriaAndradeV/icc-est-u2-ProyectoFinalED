@@ -12,9 +12,19 @@ import java.util.*;
  * pero no garantiza que sea el más corto.
  */
 public class MazeSolverDFS implements MazeSolver {
-
+    /**
+     * Ejecuta algoritmo DFS, guarda el orden de visita de celdas
+     * reconstruyendo ruta encontrada y mide el tiempo de ejec.
+     *
+     * @param maze Matriz del laberinto
+     * @param start Celda de inicio
+     * @param end Celda de destino
+     * @return
+     */
     @Override
     public SolveResults getPath(Cell[][] maze, Cell start, Cell end) {
+        long startTime = System.nanoTime();
+
         int rows = maze.length;
         int cols = maze[0].length;
 
@@ -72,6 +82,9 @@ public class MazeSolverDFS implements MazeSolver {
             Collections.reverse(path); // Para que vaya de inicio a fin
         }
 
-        return new SolveResults(new ArrayList<>(visitados), path);
+        long endTime = System.nanoTime();
+        long duracion = endTime - startTime;
+
+        return new SolveResults(new ArrayList<>(visitados), path, duracion);
     }
 }

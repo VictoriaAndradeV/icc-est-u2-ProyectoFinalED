@@ -12,8 +12,17 @@ import java.util.*;
  * final en el laberinto
  */
 public class MazeSolverBFS implements MazeSolver {
+    /**
+     * Ejecuta el algoritmo BFS, guarda el orden de visita de las celdas
+     * @param maze Matriz del laberinto
+     * @param start Celda de inicio
+     * @param end Celda del final
+     * @return SolveResults con celdas visitadas, ruta y tiempo en nanosegundos
+     */
     @Override
     public SolveResults getPath(Cell[][] maze, Cell start, Cell end) {
+        long startTime = System.nanoTime();
+
         int rows = maze.length; //permite calcular tot filas
         int cols = maze[0].length; //total columnas
 
@@ -26,7 +35,7 @@ public class MazeSolverBFS implements MazeSolver {
 
         boolean found = false;
         //arriba, abajo, izq y dere
-        int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
         while(!cola.isEmpty()) {
             Cell currentCell = cola.poll();
@@ -59,7 +68,6 @@ public class MazeSolverBFS implements MazeSolver {
         List<Cell> path = new ArrayList<>();
         if (found) {
             Cell currentCell =end;
-
             while (currentCell != null) {
                 path.add(currentCell);
                 currentCell = map.get(currentCell);
@@ -67,6 +75,9 @@ public class MazeSolverBFS implements MazeSolver {
             Collections.reverse(path); // Para que vaya de inicio a fin
 
         }
-        return new SolveResults(new ArrayList<>(visited), path);
+
+        long endTime = System.nanoTime();
+        long duration = endTime - startTime;
+        return new SolveResults(new ArrayList<>(visited), path, duration);
     }
 }
