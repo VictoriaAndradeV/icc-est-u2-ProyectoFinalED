@@ -142,13 +142,6 @@ Finalmente, se devuelve un objeto SolveResults que guarda todo lo necesario para
 
 - Puedes limpiar el laberinto o vaciar los resultados.
 
-## 📈 Ejemplo de Salida
-```
-
-Algoritmo seleccionado: DFS
-Tiempo de ejecución: 132100 ns
-Celdas en el camino: 20
-```
 
 ### 🧰 Requisitos
 
