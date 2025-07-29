@@ -9,8 +9,9 @@ Universidad Politécnica Salesiana
 - **Título:**  Resolución de Laberintos con Algoritmos de Búsqueda
 - **Asignatura:** Estructura de Datos
 - **Carrera:** Computación
-- **Estudiante:** Victoria Andrade e Isabel UllaurI
--**Correo Institucional:** iullaurib@est.ups.edu.ec & 
+- **Estudiante:** Victoria Andrade e Isabel Ullauri
+  
+-**Correo Institucional:** iullaurib@est.ups.edu.ec & vandradev2@est.ups.edu.ec
 - **Fecha:** 28/7/2025
 - **Profesor:** Ing. Pablo Torres
 
